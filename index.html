@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ferramenta para validar glebas do SICOR a partir de planilhas Excel.">
+  <title>Validador de Glebas - SICOR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">VG</div>
+      <div>
+        <p class="eyebrow">SICOR</p>
+        <h1>Validador de Glebas</h1>
+      </div>
+    </div>
+    <div class="header-meta">
+      <p class="header-copy">Valida&ccedil;&atilde;o visual e r&aacute;pida de coordenadas geod&eacute;sicas em planilhas Excel.</p>
+      <span class="version-badge">v2.0</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" aria-label="Resumo e a&ccedil;&otilde;es">
+      <section class="panel">
+        <p class="section-label">Resumo</p>
+        <div class="stats-grid">
+          <article class="stat-card accent-blue">
+            <span class="stat-value" id="stat-glebas">-</span>
+            <span class="stat-label">Glebas</span>
+          </article>
+          <article class="stat-card accent-red">
+            <span class="stat-value" id="stat-erros">-</span>
+            <span class="stat-label">Erros</span>
+          </article>
+          <article class="stat-card accent-green">
+            <span class="stat-value" id="stat-ok">-</span>
+            <span class="stat-label">Sem erro</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <p class="section-label">A&ccedil;&otilde;es</p>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btn-buscar">Selecionar arquivo</button>
+          <input type="file" id="file-input-side" accept=".xls,.xlsx" class="sr-only">
+          <button type="button" class="btn btn-success" id="btn-validar" disabled>Validar planilha</button>
+          <button type="button" class="btn btn-secondary" id="btn-exportar" disabled>Exportar relat&oacute;rio</button>
+          <button type="button" class="btn btn-muted" id="btn-limpar">Limpar</button>
+        </div>
+      </section>
+
+      <section class="panel panel-soft">
+        <p class="section-label">Status</p>
+        <p class="status-text" id="status-txt" aria-live="polite">Aguardando arquivo para iniciar a valida&ccedil;&atilde;o.</p>
+      </section>
+    </aside>
+
+    <section class="content">
+      <div class="hero-card">
+        <div>
+          <p class="eyebrow">Valida&ccedil;&atilde;o principal</p>
+          <h2>Confer&ecirc;ncia de coordenadas para detectar glebas inv&aacute;lidas</h2>
+          <p class="hero-copy">A ferramenta procura inconsist&ecirc;ncias que costumam gerar a mensagem: "A gleba informada n&atilde;o corresponde a uma &aacute;rea v&aacute;lida".</p>
+        </div>
+      </div>
+
+      <section class="upload-card">
+        <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-describedby="drop-sub">
+          <span class="drop-kicker" id="drop-kicker">Planilha Excel</span>
+          <strong class="drop-title" id="drop-title">Arraste o arquivo aqui ou clique para selecionar</strong>
+          <span class="drop-sub" id="drop-sub">Formatos aceitos: .xls e .xlsx</span>
+        </div>
+        <input type="file" id="file-input" accept=".xls,.xlsx" class="sr-only">
+        <div class="progress-bar" aria-hidden="true">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </section>
+
+      <section class="results-card">
+        <div class="tabs" role="tablist" aria-label="Resultados">
+          <button type="button" class="tab-btn active" id="tab-btn-relatorio" role="tab" aria-selected="true" aria-controls="tab-relatorio" data-tab="relatorio">Relat&oacute;rio</button>
+          <button type="button" class="tab-btn" id="tab-btn-glebas" role="tab" aria-selected="false" aria-controls="tab-glebas" data-tab="glebas" tabindex="-1">Por gleba</button>
+          <button type="button" class="tab-btn" id="tab-btn-ajuda" role="tab" aria-selected="false" aria-controls="tab-ajuda" data-tab="ajuda" tabindex="-1">Como usar</button>
+        </div>
+
+        <div class="tab-panel">
+          <section class="tab-content active" id="tab-relatorio" role="tabpanel" aria-labelledby="tab-btn-relatorio">
+            <div class="report-layout">
+              <section class="report-summary-grid" id="report-summary-grid" aria-label="Resumo da validação">
+                <article class="report-stat report-stat-neutral">
+                  <span class="report-stat-label">Glebas analisadas</span>
+                  <strong class="report-stat-value" id="report-total-glebas">-</strong>
+                </article>
+                <article class="report-stat report-stat-danger">
+                  <span class="report-stat-label">Erros encontrados</span>
+                  <strong class="report-stat-value" id="report-total-erros">-</strong>
+                </article>
+                <article class="report-stat report-stat-success">
+                  <span class="report-stat-label">Glebas válidas</span>
+                  <strong class="report-stat-value" id="report-total-ok">-</strong>
+                </article>
+                <article class="report-stat report-stat-warning">
+                  <span class="report-stat-label">Glebas com pendência</span>
+                  <strong class="report-stat-value" id="report-total-pendentes">-</strong>
+                </article>
+              </section>
+
+              <section class="report-panel">
+                <div class="report-panel-header">
+                  <div>
+                    <p class="report-panel-kicker">Leitura operacional</p>
+                    <h3 class="report-panel-title">Visão geral do relatório</h3>
+                  </div>
+                </div>
+                <div class="report-overview-list" id="report-overview-list">
+                  <p class="empty-state">Nenhum relatório gerado ainda.</p>
+                </div>
+              </section>
+
+              <section class="report-panel">
+                <div class="report-panel-header">
+                  <div>
+                    <p class="report-panel-kicker">Detalhamento</p>
+                    <h3 class="report-panel-title">Ocorrências por tipo</h3>
+                  </div>
+                </div>
+                <div class="report-groups" id="report-groups">
+                  <p class="empty-state">As inconsistências aparecerão aqui após a validação.</p>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="tab-content" id="tab-glebas" role="tabpanel" aria-labelledby="tab-btn-glebas" hidden>
+            <div class="glebas-list" id="glebas-list">
+              <p class="empty-state">Nenhum arquivo validado ainda.</p>
+            </div>
+          </section>
+
+          <section class="tab-content" id="tab-ajuda" role="tabpanel" aria-labelledby="tab-btn-ajuda" hidden>
+            <div class="help-box">
+              <h3>Como usar</h3>
+              <ul>
+                <li>Selecione uma planilha Excel arrastando o arquivo ou clicando na &aacute;rea de envio.</li>
+                <li>Confirme se a planilha possui as colunas <strong>Gleba</strong>, <strong>Ponto</strong>, <strong>Lat</strong> e <strong>Long</strong>, mesmo que existam outras colunas extras.</li>
+                <li>Clique em <strong>Validar planilha</strong> para processar o arquivo.</li>
+                <li>Consulte o resumo geral no relat&oacute;rio e os detalhes na aba <strong>Por gleba</strong>.</li>
+                <li>Exporte o relat&oacute;rio em texto para guardar o resultado da an&aacute;lise.</li>
+              </ul>
+              <hr class="help-sep">
+              <h3>Formato esperado</h3>
+              <p>O arquivo pode conter colunas extras, mas precisa identificar corretamente <strong>Gleba</strong>, <strong>Ponto</strong>, <strong>Lat</strong> e <strong>Long</strong>.</p>
+              <table class="format-table">
+                <thead>
+                  <tr><th>Cultura</th><th>Formato da Gleba</th><th>Area Nao Cultivada</th><th>Gleba</th><th>Ponto</th><th>Lat</th><th>Long</th><th>Alt</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Soja</td><td>P</td><td>N</td><td>1</td><td>1</td><td>-14.43539142600</td><td>-44.33006286500</td><td>0</td></tr>
+                  <tr><td>Soja</td><td>P</td><td>N</td><td>1</td><td>2</td><td>-14.43388207100</td><td>-44.33622437000</td><td>0</td></tr>
+                  <tr><td>Soja</td><td>P</td><td>N</td><td>1</td><td>3</td><td>-14.43252498700</td><td>-44.33593356600</td><td>0</td></tr>
+                  <tr><td>Soja</td><td>P</td><td>N</td><td>1</td><td>4</td><td>-14.43539142600</td><td>-44.33006286500</td><td>0</td></tr>
+                </tbody>
+              </table>
+              <hr class="help-sep">
+              <h3>Erros detectados</h3>
+              <ul>
+                <li><strong>Pol&iacute;gono n&atilde;o fechado</strong>: o &uacute;ltimo ponto precisa repetir a coordenada do primeiro.</li>
+                <li><strong>Pontos insuficientes</strong>: a gleba precisa de pelo menos tr&ecirc;s v&eacute;rtices &uacute;nicos.</li>
+                <li><strong>Ponto duplicado em excesso</strong>: uma coordenada aparece repetida mais vezes do que o fechamento permite.</li>
+                <li><strong>Coordenada inv&aacute;lida</strong>: latitude ou longitude n&atilde;o p&ocirc;de ser convertida em n&uacute;mero.</li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
