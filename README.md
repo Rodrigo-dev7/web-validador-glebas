@@ -34,6 +34,19 @@ Atualmente a aplicacao verifica:
 - ponto duplicado em excesso
 - coordenada invalida
 
+## Escopo atual no SICOR
+
+Atualmente, este projeto foi preparado para validar apenas estes 2 erros do SICOR:
+
+- `SICOR: A gleba informada nao corresponde a uma area valida.`
+- `SICOR: Gleba deve ser polígono fechado: o primeiro e o último ponto devem ser iguais.`
+
+## Tipos de erro identificados
+
+- `COORDENADA INVALIDA`: latitude ou longitude nao numerica
+- `PONTO DUPLICADO EM EXCESSO`: coordenada repetida 3 ou mais vezes na sequencia
+- erros de fechamento e sequenciamento do contorno da gleba
+
 ## Estrutura Esperada da Planilha
 
 A aplicacao aceita colunas extras, mas precisa reconhecer corretamente:
