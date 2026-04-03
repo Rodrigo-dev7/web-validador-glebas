@@ -1,4 +1,4 @@
-# Validador de Glebas
+# Validador de Glebas - WEB 
 
 Aplicacao web para validacao visual e rapida de coordenadas geodesicas em planilhas Excel, com foco em detectar inconsistencias que podem gerar erros de area invalida no fluxo de glebas.
 
