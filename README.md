@@ -23,13 +23,7 @@ O sistema conta com:
 - aba de relatorio com cards semanticos para sucesso, erro e alerta
 - aba por gleba com detalhamento das ocorrencias encontradas
 
-Observacao:
-
-Nao encontrei um arquivo local da captura de tela na pasta do projeto para publicar junto no repositorio. Se voce salvar a imagem em algo como `docs/interface.png`, basta adicionar esta linha ao README:
-
-```md
-![Preview da aplicacao](docs/interface.png)
-```
+<img width="1402" height="766" alt="INTERFACE" src="https://github.com/user-attachments/assets/90cf201d-179f-49da-9bc4-96d6b2ef7db2" />
 
 ## Regras de Validacao
 
